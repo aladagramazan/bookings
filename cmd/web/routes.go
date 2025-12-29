@@ -1,10 +1,10 @@
 package main
 
 import (
-	"myproject/pkg/config"
-	"myproject/pkg/handlers"
 	"net/http"
 
+	"github.com/aladagramazan/bookings/pkg/config"
+	"github.com/aladagramazan/bookings/pkg/handlers"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 )
@@ -12,16 +12,21 @@ import (
 func routes(app *config.AppConfig) http.Handler {
 	mux := chi.NewRouter()
 
-	mux.Use(middleware.Recoverer) // handlerda bir panic oluşursa uygulamanın çökmesini engeller
-	// panici yakalar ve 500 Internal Server Error döner
-	// panic detaylarını loglar
-	// sunucunun çalışmaya devam etmesini sağlar
-
-	mux.Use(NoSurf)      // CSRF koruması ekler
-	mux.Use(SessionLoad) // session yönetimi ekler
+	mux.Use(middleware.Recoverer)
+	mux.Use(NoSurf)
+	mux.Use(SessionLoad)
 
 	mux.Get("/", handlers.Repo.Home)
 	mux.Get("/about", handlers.Repo.About)
+	mux.Get("/generals-quarters", handlers.Repo.Generals)
+	mux.Get("/majors-suite", handlers.Repo.Majors)
+	mux.Get("/search-availability", handlers.Repo.Availability)
+	mux.Get("/contact", handlers.Repo.Contact)
+
+	mux.Get("/make-reservation", handlers.Repo.Reservation)
+
+	fileServer := http.FileServer(http.Dir("./static/"))
+	mux.Handle("/static/*", http.StripPrefix("/static", fileServer))
 
 	return mux
 }

@@ -7,6 +7,8 @@ import (
 	"time"
 
 	"github.com/aladagramazan/bookings/pkg/config"
+	"github.com/aladagramazan/bookings/pkg/handlers"
+	"github.com/aladagramazan/bookings/pkg/render"
 	"github.com/alexedwards/scs/v2"
 )
 
@@ -15,42 +17,42 @@ const portNumber = ":8080"
 var app config.AppConfig
 var session *scs.SessionManager
 
+// main is the main function
 func main() {
-	log.Println("Starting application...")
-
-	// in production, change to true
+	// change this to true when in production
 	app.InProduction = false
 
+	// set up the session
 	session = scs.New()
-	session.Lifetime = 10 * time.Second
+	session.Lifetime = 24 * time.Hour
 	session.Cookie.Persist = true
 	session.Cookie.SameSite = http.SameSiteLaxMode
-	session.Cookie.Secure = app.InProduction // for development, set to true in production
+	session.Cookie.Secure = app.InProduction
 
 	app.Session = session
 
-	tc, err := render.InitTemplateCache()
+	tc, err := render.CreateTemplateCache()
 	if err != nil {
-		log.Fatal("Cannot create template cache:", err)
+		log.Fatal("cannot create template cache")
 	}
+
 	app.TemplateCache = tc
-	app.UseCache = true // for development, set to true in production
+	app.UseCache = false
 
-	// Create handler repository with dependency injection
-	repo := handlers.NewRepository(&app)
-
+	repo := handlers.NewRepo(&app)
 	handlers.NewHandlers(repo)
-	render.SetAppConfig(&app)
 
-	log.Println("Handlers registered")
-	fmt.Printf("Server is running on http://localhost%s\n", portNumber)
+	render.NewTemplates(&app)
+
+	fmt.Println(fmt.Sprintf("Staring application on port %s", portNumber))
 
 	srv := &http.Server{
 		Addr:    portNumber,
 		Handler: routes(&app),
 	}
+
 	err = srv.ListenAndServe()
 	if err != nil {
-		log.Fatal("Error starting server:", err)
+		log.Fatal(err)
 	}
 }

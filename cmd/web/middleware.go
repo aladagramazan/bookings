@@ -1,21 +1,25 @@
 package main
 
 import (
-	"github.com/justinas/nosurf"
 	"net/http"
+
+	"github.com/justinas/nosurf"
 )
 
+// NoSurf is the csrf protection middleware
 func NoSurf(next http.Handler) http.Handler {
-	crsfHandler := nosurf.New(next)
-	crsfHandler.SetBaseCookie(http.Cookie{
-		HttpOnly: true,                 // javascript'in cookie'ye erişimini engeller
-		Path:     "/",                  // cookie tüm path'lerde geçerli olur
-		Secure:   app.InProduction,     // http üzerinden çalışır (geliştirme için) (production'da true olmalı)
-		SameSite: http.SameSiteLaxMode, // Farklı sitelerden gelen isteklerde cookie gönderilmez
+	csrfHandler := nosurf.New(next)
+
+	csrfHandler.SetBaseCookie(http.Cookie{
+		HttpOnly: true,
+		Path:     "/",
+		Secure:   app.InProduction,
+		SameSite: http.SameSiteLaxMode,
 	})
-	return crsfHandler
+	return csrfHandler
 }
 
+// SessionLoad loads and saves session data for current request
 func SessionLoad(next http.Handler) http.Handler {
 	return session.LoadAndSave(next)
 }
