@@ -6,9 +6,9 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/aladagramazan/bookings/pkg/config"
-	"github.com/aladagramazan/bookings/pkg/models"
-	"github.com/aladagramazan/bookings/pkg/render"
+	"github.com/aladagramazan/bookings/internal/config"
+	"github.com/aladagramazan/bookings/internal/models"
+	"github.com/aladagramazan/bookings/internal/render"
 )
 
 // Repo the repository used by the handlers
@@ -87,7 +87,7 @@ type jsonResponse struct {
 
 func (m *Repository) AvailabilityJson(w http.ResponseWriter, r *http.Request) {
 	resp := jsonResponse{
-		OK:      false,
+		OK:      true,
 		Message: "Available!",
 	}
 
@@ -96,7 +96,7 @@ func (m *Repository) AvailabilityJson(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 	}
 
-	log.Println(out)
+	log.Println(string(out))
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(out)
 }
