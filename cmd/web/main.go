@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/gob"
 	"fmt"
 	"log"
 	"net/http"
@@ -8,6 +9,7 @@ import (
 
 	"github.com/aladagramazan/bookings/internal/config"
 	"github.com/aladagramazan/bookings/internal/handlers"
+	"github.com/aladagramazan/bookings/internal/models"
 	"github.com/aladagramazan/bookings/internal/render"
 	"github.com/alexedwards/scs/v2"
 )
@@ -19,6 +21,10 @@ var session *scs.SessionManager
 
 // main is the main function
 func main() {
+
+	// what am I going to store in the session
+	gob.Register(models.Reservation{})
+
 	// change this to true when in production
 	app.InProduction = false
 
@@ -37,7 +43,7 @@ func main() {
 	}
 
 	app.TemplateCache = tc
-	app.UseCache = false
+	app.UseCache = true
 
 	repo := handlers.NewRepo(&app)
 	handlers.NewHandlers(repo)
